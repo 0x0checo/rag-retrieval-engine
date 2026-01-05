@@ -2,3 +2,7 @@ beir
 datasets
 tqdm
 bm25s
+sentence-transformers
+faiss-cpu
+numpy
+streamlit

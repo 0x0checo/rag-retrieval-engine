@@ -56,14 +56,14 @@ def main():
 
     out = {
         "dataset": dataset,
-        "method": "dense_bge",
+        "method": "dense_e5",
         "ndcg@10": metrics_dict["NDCG@10"],
         "recall@100": metrics_dict["Recall@100"],
         "map@10": metrics_dict["MAP@10"],
         "p@10": metrics_dict["P@10"],
     }
 
-    print("Dense-BGE metrics:", out)
+    print("Dense-E5 metrics:", out)
 
 if __name__ == "__main__":
     main()
