@@ -2,7 +2,8 @@
 
 A lightweight retrieval benchmark + demo app for RAG, built on **BEIR (SciFact)**.  
 This project compares **sparse retrieval (BM25)**, **dense retrieval (BGE / E5)**, and a **hybrid fusion (BM25 + BGE via RRF)** with standard IR metrics and an interactive **Streamlit** UI.
-
+Here's the website:
+http://188.120.171.216:8501
 ---
 
 ## What’s Included
