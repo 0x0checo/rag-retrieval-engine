@@ -8,13 +8,39 @@ import faiss
 from sentence_transformers import SentenceTransformer
 from pathlib import Path
 from beir.datasets.data_loader import GenericDataLoader
+from beir.util import download_and_unzip
+
+BEIR_URLS = {
+    "scifact": "https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/scifact.zip"
+}
+
+def ensure_dataset(dataset: str, data_root: Path) -> Path:
+    """
+    Ensure BEIR dataset exists locally. If not, download and unzip.
+    Returns the BEIR data_folder path that contains corpus.jsonl.
+    """
+    data_root.mkdir(parents=True, exist_ok=True)
+
+    data_folder = data_root / dataset / dataset  # data_raw/scifact/scifact
+    corpus_file = data_folder / "corpus.jsonl"
+
+    if corpus_file.exists():
+        return data_folder
+
+    url = BEIR_URLS[dataset]
+    download_and_unzip(url, str(data_root))  # downloads to data_raw/<dataset>/
+    if not corpus_file.exists():
+        raise FileNotFoundError(f"Download finished but {corpus_file} not found. Check dataset structure.")
+    return data_folder
 
 
 @st.cache_resource
 def load_scifact():
-    data_folder = Path("data_raw") / "scifact" / "scifact"
+    data_root = Path("data_raw")
+    data_folder = ensure_dataset("scifact", data_root)
     corpus, queries, qrels = GenericDataLoader(data_folder=str(data_folder)).load(split="test")
     return corpus, queries, qrels
+
 
 def build_text(doc):
     title = (doc.get("title") or "").strip()
@@ -70,8 +96,8 @@ def load_e5_resources():
     model = SentenceTransformer("intfloat/e5-base-v2")
     return index, dense_doc_ids, model
 
-st.set_page_config(page_title="RAG Retrieval Demo", layout="wide")
-st.title("RAG Retrieval Demo")
+st.set_page_config(page_title="RAG Retrieval Engine", layout="wide")
+st.title("RAG Retrieval Engine")
 st.sidebar.header("Benchmark (SciFact)")
 metrics_df = load_metrics_table()
 if metrics_df is None:
