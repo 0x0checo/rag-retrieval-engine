@@ -5,7 +5,7 @@ This project compares **sparse retrieval (BM25)**, **dense retrieval (BGE / E5)*
 
 **Here's the website:**
 
-http://188.120.171.216:8501
+https://rag-retrieval-engine.streamlit.app/
 ---
 
 ## What’s Included
