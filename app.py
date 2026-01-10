@@ -17,22 +17,37 @@ BEIR_URLS = {
 def ensure_dataset(dataset: str, data_root: Path) -> Path:
     """
     Ensure BEIR dataset exists locally. If not, download and unzip.
-    Returns the BEIR data_folder path that contains corpus.jsonl.
+    Returns the actual folder containing corpus.jsonl.
     """
     data_root.mkdir(parents=True, exist_ok=True)
+    ds_root = data_root / dataset  # e.g., data_raw/scifact
 
-    data_folder = data_root / dataset / dataset  # data_raw/scifact/scifact
-    corpus_file = data_folder / "corpus.jsonl"
+    def find_data_folder() -> Path | None:
+        if not ds_root.exists():
+            return None
+        hits = list(ds_root.rglob("corpus.jsonl"))
+        if not hits:
+            return None
+        # corpus.jsonl's parent is the BEIR data_folder
+        return hits[0].parent
 
-    if corpus_file.exists():
+    # 1) if already exists, return directly
+    data_folder = find_data_folder()
+    if data_folder is not None:
         return data_folder
 
+    # 2) otherwise download & unzip
     url = BEIR_URLS[dataset]
-    download_and_unzip(url, str(data_root))  # downloads to data_raw/<dataset>/
-    if not corpus_file.exists():
-        raise FileNotFoundError(f"Download finished but {corpus_file} not found. Check dataset structure.")
-    return data_folder
+    download_and_unzip(url, str(data_root))
 
+    # 3) search again after download
+    data_folder = find_data_folder()
+    if data_folder is None:
+        raise FileNotFoundError(
+            f"Downloaded {dataset}, but corpus.jsonl not found under {ds_root}. "
+            f"Existing files: {list(ds_root.rglob('*'))[:20]}"
+        )
+    return data_folder
 
 @st.cache_resource
 def load_scifact():
